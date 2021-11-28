@@ -12,3 +12,7 @@
     * Used in conjunction with a lock_guard, which keeps a mutex locked after instantiation until the lock_guard is destroyed.
     * By creating a lock_guard at the start of a function, the function becomes a critical section that is locked when called, and unlocked when it finishes.
     * (because the lock_guard is local to the function, it is destroyed at the end of the function, which unlocks the mutex)
+
+### Inspiration:
+https://github.com/cjchirag7/chatroom-cpp
+* All we need to do is make the server support multiple concurrent rooms
