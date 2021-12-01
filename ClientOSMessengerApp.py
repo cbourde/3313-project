@@ -1,4 +1,3 @@
-# SE 3313A Project - Ali Malik, Ali Chouman, Yazan Al-Lahham, Andrei Popescu
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
