@@ -123,20 +123,25 @@ if (len(sys.argv) < 3):
     print("Usage: Client.py <ip> <port>")
     exit()
 
+# IP address: Use ipaddress module to validate it
 ip = sys.argv[1]
 try:
     test_ip = ipaddress.ip_address(ip)
 except:
     print("Invalid IP address: Must be of the form x.x.x.x where 0 <= x <= 255")
 
+# Port number: Make sure it's an integer and in the correct range
 port = sys.argv[2]
 try:
     port = int(port)
 except:
     print("Invalid port number: Must be an integer")
+    exit()
 if port < 0 or port > 65535:
     print("Invalid port number: Must be between 0 and 65535 inclusive")
+    exit()
 
+# Set up socket parameters
 BUFFER_SIZE = 1024
 ADDR = (ip, port)
 
