@@ -1,6 +1,8 @@
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
+import sys
+import ipaddress
 
 
 # Continuously listens for data from the server and displays any received messages.
@@ -116,11 +118,27 @@ send_button.pack()
 # Attach event listener for closing the window, which will send an exit command to the server
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
-# Set up socket parameters
-HOST = "127.0.0.1"
-PORT = 42069
+# Get arguments from command line
+if (len(sys.argv) < 3):
+    print("Usage: Client.py <ip> <port>")
+    exit()
+
+ip = sys.argv[1]
+try:
+    test_ip = ipaddress.ip_address(ip)
+except:
+    print("Invalid IP address: Must be of the form x.x.x.x where 0 <= x <= 255")
+
+port = sys.argv[2]
+try:
+    port = int(port)
+except:
+    print("Invalid port number: Must be an integer")
+if port < 0 or port > 65535:
+    print("Invalid port number: Must be between 0 and 65535 inclusive")
+
 BUFFER_SIZE = 1024
-ADDR = (HOST, PORT)
+ADDR = (ip, port)
 
 # Create socket and connect to the server
 client_socket = socket(AF_INET, SOCK_STREAM)
