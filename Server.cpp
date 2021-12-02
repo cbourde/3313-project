@@ -52,11 +52,8 @@ public:
 
     virtual long ThreadMain()
     {
-		// Convert port number to a string to use when accessing the semaphore
-		std::string stringPort = std::to_string(port);
-
 		// Semaphore shared by all ClientThreads. Used to ensure mutual exclusion when a thread accesses the allClientThreads vector.
-		Semaphore semClient(stringPort);
+		Semaphore semClient("SemClients");
 
 		try {
 			// ======== Initially set this thread's chat room number. ========
@@ -66,7 +63,7 @@ public:
 			// Convert the received data to a string
 			std::string roomStr = data.ToString();
 
-			// Get rid of the leading slash so only the room number is left
+			// Get rid of the leading hash so only the room number is left
 			roomStr = roomStr.substr(1, roomStr.size() - 1);
 
 			// Convert the room number to an actual integer and set this thread's room number accordingly
@@ -103,8 +100,8 @@ public:
 					break;
 				}
 
-				// If the client sent a command starting with a forward slash, then switch chat rooms to the number after the slash.
-				if (recv[0] == '/') {
+				// If the client sent a command starting with a hash sign, then switch chat rooms to the number after the hash.
+				if (recv[0] == '#') {
 					// Get the portion of the string after the slash, which should be a number.
 					std::string stringChat = recv.substr(1, recv.size() - 1);
 				
@@ -202,9 +199,8 @@ public:
         while (true)
         {
             try {
-				// Create the semaphore that protects the allClientThreads vector, using the port number as the semaphore name.
-                std::string portStr = std::to_string(port);
-                Semaphore semClients(portStr, 1, true);
+				// Create the semaphore that protects the allClientThreads vector
+                Semaphore semClients("SemClients", 1, true);
 
 				// Create string for maximum number of rooms, to be sent to new clients when they connect
                 std::string maxRoomsStr = std::to_string(numberRooms) + '\n';
