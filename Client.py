@@ -8,31 +8,33 @@ import ipaddress
 # Continuously listens for data from the server and displays any received messages.
 # This function runs in its own thread so it can listen constantly.
 def receive():
-    while True:
+
+    isReceiving = True
+    while isReceiving:
         try:
             # Wait for new data from the server and decode it to a string
-            msg = client_socket.recv(BUFFER_SIZE).decode("utf8")
+            message = client_socket.recv(BUFFER_SIZE).decode("utf8")
             
             # Add the new message to the message list
-            msg_list.insert(tkinter.END, msg)
+            message_list.insert(tkinter.END, message)
             
             # Update the message list to show the new message
-            msg_list.see(tkinter.END)
+            message_list.see(tkinter.END)
         except OSError:
-            break
+            isReceiving = False
 
 # Sends whatever is in the message box to the server. This function is called by the send button,
 # pressing enter in the message field, or as part of the event handler for closing the program.
 def send(event=None):
     # Get message string from message field
-    msg = my_msg.get()
+    message = my_msg.get()
     
     # Clear message field after reading message
     my_msg.set("")
 
     # If the message is the exit command (sent as part of the event handler for closing the window),
     # then send a final message and exit the program.
-    if msg == "!exit":
+    if message == "!exit":
         # Send message "<username> has left"
         client_socket.send(bytes(my_username.get() + " has left", "utf8"))
         
@@ -45,18 +47,8 @@ def send(event=None):
     
     # If execution gets here, then the message is a normal message. So, send it to the server along
     # with the user's username. (it will be broadcast to all other clients in the same room)
-    client_socket.send(bytes(my_username.get() + ": " + msg, "utf8"))
+    client_socket.send(bytes(my_username.get() + ": " + message, "utf8"))
 
-
-# Sends the exit command to the server. This function is called when the user clicks the X button to close the window.
-def on_closing(event=None):
-    # Set the message variable to the exit command
-    my_msg.set("!exit")
-    
-    #Send the command to the server
-    send()
-
-# Sends a command to the server to change the client's room number. Called by the Change Room button
 def change_room():
     global current_room
     
@@ -67,11 +59,21 @@ def change_room():
     client_socket.send(bytes("#" + current_room, "utf8"))
     
     # Clear the message list
-    msg_list.delete(0, tkinter.END)
+    message_list.delete(0, tkinter.END)
     
     # Show a greeting message for the new room
-    msg_list.insert(tkinter.END, "You are now in room " + str(current_room))
-    msg_list.see(tkinter.END)
+    message_list.insert(tkinter.END, "You are now in room " + str(current_room))
+    message_list.see(tkinter.END)
+
+# Sends the exit command to the server. This function is called when the user clicks the X button to close the window.
+def on_closing(event = None):
+    # Set the message variable to the exit command
+    my_msg.set("!exit")
+    
+    #Send the command to the server
+    send()
+
+# Sends a command to the server to change the client's room number. Called by the Change Room button
 
 
 # ================ Begin main program ================
@@ -94,22 +96,22 @@ my_username.set("")
 
 # Initialize message container, add a scrollbar, and place it in the window
 scrollbar = tkinter.Scrollbar(messages_frame)
-msg_list = tkinter.Listbox(messages_frame, height=30, width=100, yscrollcommand=scrollbar.set)
-scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
-msg_list.pack()
+message_list = tkinter.Listbox(messages_frame, height = 30, width = 100, yscrollcommand = scrollbar.set)
+scrollbar.pack(side = tkinter.RIGHT, fill = tkinter.Y)
+message_list.pack(side = tkinter.LEFT, fill = tkinter.BOTH)
+message_list.pack()
 messages_frame.pack()
 
 # Initialize username entry field and its label, and place them in the window
-username_label = tkinter.Label(top, text="Enter username: ")
+username_label = tkinter.Label(top, text = "Enter your username: ")
 username_label.pack()
-username_field = tkinter.Entry(top, textvariable=my_username)
+username_field = tkinter.Entry(top, textvariable = my_username)
 username_field.pack()
 
 # Initialize message entry field, Send button, and field label, and place them in the window
-message_label = tkinter.Label(top, text="Enter message: ")
+message_label = tkinter.Label(top, text = "Enter your message: ")
 message_label.pack()
-entry_field = tkinter.Entry(top, textvariable=my_msg, width=50)
+entry_field = tkinter.Entry(top, textvariable = my_msg, width = 50)
 entry_field.bind("<Return>", send)  # Add event listener for pressing enter in the message entry field, which acts the same as the send button
 entry_field.pack()
 send_button = tkinter.Button(top, text="Send", command=send)
@@ -123,25 +125,22 @@ if (len(sys.argv) < 3):
     print("Usage: Client.py <ip> <port>")
     exit()
 
-# IP address: Use ipaddress module to validate it
 ip = sys.argv[1]
 try:
     test_ip = ipaddress.ip_address(ip)
 except:
-    print("Invalid IP address: Must be of the form x.x.x.x where 0 <= x <= 255")
+    print("Error: address must be x.x.x.x where 0 <= x <= 255")
 
-# Port number: Make sure it's an integer and in the correct range
 port = sys.argv[2]
+
 try:
     port = int(port)
 except:
-    print("Invalid port number: Must be an integer")
-    exit()
-if port < 0 or port > 65535:
-    print("Invalid port number: Must be between 0 and 65535 inclusive")
-    exit()
+    print("Error: Port number must be an integer.")
 
-# Set up socket parameters
+if port < 0 or port > 65535:
+    print("Error: Port number must be between 0 and 65535 inclusive")
+
 BUFFER_SIZE = 1024
 ADDR = (ip, port)
 
