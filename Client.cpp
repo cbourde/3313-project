@@ -7,11 +7,14 @@
 
 using namespace Sync;
 
+// Testing client: Used to test connection between VM and host
+// If you're looking for the chat room client, that's Client.py
+
 // This thread handles the connection to the server
 class ClientThread : public Thread
 {
 private:
-	// Reference to our connected socket
+	// Reference to the connected socket
 	Socket& socket;
 
 	// Data to send to server
@@ -28,17 +31,17 @@ public:
 	virtual long ThreadMain()
 	{
 		int result = socket.Open();
-		std::cout << "Please input your data (done to exit): ";
+		std::cout << "Enter data to send: ";
 		std::cout.flush();
 
-		// Get the data
+		// Get user input
 		std::getline(std::cin, data_str);
 		data = ByteArray(data_str);
 
-		// Write to the server
+		// Send it to the server
 		socket.Write(data);
 
-		// Get the response
+		// Get the response and print it
 		socket.Read(data);
 		data_str = data.ToString();
 		std::cout << "Server Response: " << data_str << std::endl;
@@ -49,13 +52,14 @@ public:
 int main(void)
 {
 	// Welcome the user 
-	std::cout << "SE3313 Lab 4 Client" << std::endl;
+	std::cout << "3313 Project Testing Client" << std::endl;
 
 	// Create our socket
-	Socket socket("127.0.0.1", 3000);
+	Socket socket("127.0.0.1", 42069);
 	ClientThread clientThread(socket);
 	while(1)
 	{
+		// just wait until user presses ctrl C lol
 		sleep(1);
 	}
 	socket.Close();
