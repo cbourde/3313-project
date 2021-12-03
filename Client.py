@@ -80,7 +80,8 @@ current_room = 0
 
 # Initialize window
 top = tkinter.Tk()
-top.title("OS Messenger App")
+top.title("3313 Chat App")
+top['background'] = '#505050'
 messages_frame = tkinter.Frame(top)
 
 # Initialize variables to be linked to input elements
@@ -93,27 +94,33 @@ my_username = tkinter.StringVar()
 my_username.set("")
 
 # Initialize message container, add a scrollbar, and place it in the window
-scrollbar = tkinter.Scrollbar(messages_frame)
-msg_list = tkinter.Listbox(messages_frame, height=30, width=100, yscrollcommand=scrollbar.set)
+scrollbar = tkinter.Scrollbar(messages_frame, bg = "#505050", troughcolor='#696969')
+msg_list = tkinter.Listbox(messages_frame, height=30, width=100, yscrollcommand=scrollbar.set, bg = '#696969', fg = '#ffffff')
 scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 msg_list.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
 msg_list.pack()
 messages_frame.pack()
 
+# Create a frame for configuration (chat rooms and username)
+cfg_frame = tkinter.Frame(top, bg = '#505050', width = 25)
+
 # Initialize username entry field and its label, and place them in the window
-username_label = tkinter.Label(top, text="Enter username: ")
-username_label.pack()
-username_field = tkinter.Entry(top, textvariable=my_username)
-username_field.pack()
+username_label = tkinter.Label(cfg_frame, text="Enter username: ", bg = '#505050', fg = '#ffffff')
+username_label.pack(anchor='w', padx = 10)
+username_field = tkinter.Entry(cfg_frame, textvariable=my_username, bg = '#696969', fg = '#ffffff')
+username_field.pack(anchor='w', padx = 10, pady = 5)
+
+# Create a frame for the message box and send button
+send_frame = tkinter.Frame(top, bg = '#505050')
 
 # Initialize message entry field, Send button, and field label, and place them in the window
-message_label = tkinter.Label(top, text="Enter message: ")
-message_label.pack()
-entry_field = tkinter.Entry(top, textvariable=my_msg, width=50)
+message_label = tkinter.Label(send_frame, text="Enter message: ", bg = '#505050', fg = '#ffffff')
+message_label.pack(anchor='nw', padx = 10)
+entry_field = tkinter.Entry(send_frame, textvariable=my_msg, width=50, bg = '#696969', fg = '#ffffff')
 entry_field.bind("<Return>", send)  # Add event listener for pressing enter in the message entry field, which acts the same as the send button
-entry_field.pack()
-send_button = tkinter.Button(top, text="Send", command=send)
-send_button.pack()
+entry_field.pack(anchor='nw', padx = 10, pady = 5)
+send_button = tkinter.Button(send_frame, text="Send", command=send, bg = '#696969', fg = '#ffffff')
+send_button.pack(anchor='nw', padx = 10, pady = 5)
 
 # Attach event listener for closing the window, which will send an exit command to the server
 top.protocol("WM_DELETE_WINDOW", on_closing)
@@ -161,12 +168,15 @@ chatRoomSelected.set("List Of Chat Rooms")
 rooms_list = []
 for i in range(number_of_rooms):
     rooms_list.append("Chat Room " + str(i + 1))
-chat_rooms = tkinter.OptionMenu(top, chatRoomSelected, *rooms_list)
-chat_rooms.pack()
+chat_rooms = tkinter.OptionMenu(cfg_frame, chatRoomSelected, *rooms_list)
+chat_rooms.config(bg = '#696969', fg = '#ffffff')
+chat_rooms.pack(anchor='w', padx = 10, pady = 5)
 
 # Initialize change room button and attach event handler
-change_button = tkinter.Button(top, text="Change Room", command=change_room)
-change_button.pack()
+change_button = tkinter.Button(cfg_frame, text="Change Room", command=change_room, bg = '#696969', fg = '#ffffff')
+change_button.pack(anchor='w', padx = 10, pady = 5)
+cfg_frame.pack(side = tkinter.LEFT)
+send_frame.pack(side = tkinter.RIGHT, expand = True)
 
 # Create thread for receiving data
 receive_thread = Thread(target=receive)
@@ -176,4 +186,9 @@ receive_thread.start()
 
 # Set window to non-resizable and launch GUI
 top.resizable(width=False, height=False)
+
+# Initially join room 1, which will always exist
+chatRoomSelected.set("Chat Room 1")
+change_room()
+
 tkinter.mainloop()
