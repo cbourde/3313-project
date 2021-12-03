@@ -24,7 +24,7 @@ def sendMessage(event=None):
         clntSocket.close()
         
         # Close window
-        wind.quit()
+        wind.destroy()
         return
     
     # If execution gets here, then the message is a normal message. So, send it to the server along
